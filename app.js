@@ -1,74 +1,3 @@
-const forbiddenMoves = [
-  "guillotine",
-  "swords-dance",
-  "whirlwind",
-  "sand-attack",
-  "horn-drill",
-  "tail-whip",
-  "leer",
-  "growl",
-  "roar",
-  "sing",
-  "supersonic",
-  "sonic-boom",
-  "disable",
-  "mist",
-  "low-kick",
-  "counter",
-  "seismic-toss",
-  "leech-seed",
-  "growth",
-  "poison-powder",
-  "stun-spore",
-  "sleep-powder",
-  "string-shot",
-  "dragon-rage",
-  "thunder-wave",
-  "fissure",
-  "toxic",
-  "hypnosis",
-  "meditate",
-  "agility",
-  "teleport",
-  "night-shade",
-  "mimic",
-  "screech",
-  "double-team",
-  "recover",
-  "harden",
-  "minimize",
-  "smokescreen",
-  "confuse-ray",
-  "withdraw",
-  "defense-curl",
-  "barrier",
-  "light-screen",
-  "haze",
-  "reflect",
-  "focus-energy",
-  "bide",
-  "metronome",
-  "mirror-move",
-  "amnesia",
-  "kinesis",
-  "soft-boiled",
-  "glare",
-  "poison-gas",
-  "lovely-kiss",
-  "transform",
-  "spore",
-  "flash",
-  "psywave",
-  "splash",
-  "acid-armor",
-  "rest",
-  "sharpen",
-  "conversion",
-  "substitute",
-];
-
-console.log(forbiddenMoves.length);
-
 class Battlefield {
   constructor(pokemonOne, pokemonTwo) {
     this.pokemonOne = pokemonOne;
@@ -87,27 +16,28 @@ class Pokemon {
     this.sprite_back = response.sprites.back_default;
     this.base_hp = response.stats[0].base_stat;
     this.base_speed = response.stats[5].base_stat;
-    this.type = this.handleTypes(response.types);
-    this.move = this.handleMove(response.moves);
+    this.type = handleTypes(response.types);
+    this.move = handleMove(response.moves);
+  }
+}
+
+function handleTypes(responseTypes) {
+  const types = [];
+
+  for (let i = 0; i < responseTypes.length; i++) {
+    types.push(responseTypes[i].type.name);
+  }
+  return types;
+}
+
+function handleMove(responseMoves) {
+  const allResponseMoves = [];
+
+  for (let i = 0; i < responseMoves.length; i++) {
+    allResponseMoves.push(responseMoves[i].move.name);
   }
 
-  handleTypes(responseTypes) {
-    const types = [];
-
-    for (let i = 0; i < responseTypes.length; i++) {
-      types.push(responseTypes[i].type.name);
-    }
-    return types;
-  }
-
-  handleMove(responseMoves) {
-    const allPossibleMoves = [];
-
-    for (let i = 0; i < responseMoves.length; i++) {
-      allPossibleMoves.push({ name: responseMoves[i].move.name, url: responseMoves[i].move.url });
-    }
-    return allPossibleMoves;
-  }
+  return allResponseMoves;
 }
 
 async function getPokemon() {
@@ -116,16 +46,45 @@ async function getPokemon() {
   const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`);
   const response = await data.json();
 
-  console.log(response);
-
   return response;
 }
 
-async function createBattlefield() {
+async function assignMove(pokemon) {
+  const allMoves = await getMoves();
+  const possibleMoves = allMoves.filter((move) => {
+    return move.power;
+  });
+  const pokemonMoves = pokemon.move;
+
+  let commonMoves = possibleMoves.filter((x) => pokemonMoves.includes(x.identifier));
+
+  const assignedMove = randomMove(commonMoves);
+
+  pokemon.move = assignedMove;
+}
+
+async function createBattleField() {
   const pokemonOne = new Pokemon(await getPokemon());
   const pokemonTwo = new Pokemon(await getPokemon());
+  await assignMove(pokemonOne);
+  await assignMove(pokemonTwo);
 
   console.log(pokemonOne, pokemonTwo);
 }
 
-createBattlefield();
+async function getMoves() {
+  const data = await fetch("moves.json");
+  const response = await data.json();
+
+  return response;
+}
+
+function randomMove(array) {
+  const random = Math.floor(Math.random() * array.length);
+
+  return array[random];
+}
+
+getMoves();
+
+createBattleField();
