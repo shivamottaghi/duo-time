@@ -25,3 +25,9 @@ body{
 .picture>img {
     height: 350px;
 }
+
+.challenge-box{
+    min-height: 300px;
+    background-color: #000814;
+    border: 2px solid #FFC300;
+}
