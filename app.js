@@ -14,52 +14,55 @@ class Battlefield {
   }
 
   round() {
+    this.shuffleMoves(this.pokemonOne.moves);
+    this.shuffleMoves(this.pokemonTwo.moves);
+
     if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
       setTimeout(() => {
         if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+          console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-          console.log(`${this.pokemonOne.name} attacked`);
         } else {
           console.log("missed attack");
         }
         this.updatePokemonTwoHealth(this.pokemonTwo);
-      }, 3000);
+      }, 2000);
 
       setTimeout(() => {
         if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+          console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-          console.log(`${this.pokemonTwo.name} attacked`);
         } else {
           console.log("missed attack");
         }
         this.updatePokemonOneHealth(this.pokemonOne);
-      }, 6000);
+      }, 4000);
     } else {
       setTimeout(() => {
         if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+          console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-          console.log(`${this.pokemonTwo.name} attacked`);
         } else {
           console.log("missed attack");
         }
         this.updatePokemonOneHealth(this.pokemonOne);
-      }, 3000);
+      }, 2000);
 
       setTimeout(() => {
         if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+          console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-          console.log(`${this.pokemonOne.name} attacked`);
         } else {
           console.log("missed attack");
         }
         this.updatePokemonTwoHealth(this.pokemonTwo);
-      }, 6000);
+      }, 4000);
     }
 
     if (this.pokemonOne.current_hp > 0 && this.pokemonTwo.current_hp > 0) {
       setTimeout(() => {
         this.round();
-      }, 9000);
+      }, 6000);
     } else {
       return;
     }
@@ -338,6 +341,7 @@ function createTopHealthBar(pokemon) {
   healthBar.style.width = "100%";
   healthBar.style.background = "red";
   healthBar.style.color = "black";
+  healthBar.style.transition = "ease-in-out 2s";
   challengeBox.appendChild(healthBar);
   displayPokemonTwoVitals(pokemon);
 }
@@ -349,6 +353,7 @@ function createBottomHealthBar(pokemon) {
   healthBar.style.width = "100%";
   healthBar.style.background = "red";
   healthBar.style.color = "black";
+  healthBar.style.transition = "ease-in-out 2s";
   challengeBox.appendChild(healthBar);
 
   displayPokemonOneVitals(pokemon);
