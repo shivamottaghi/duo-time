@@ -1,12 +1,94 @@
 class Battlefield {
   constructor(pokemonOne, pokemonTwo) {
     this.pokemonOne = pokemonOne;
-    this.pokemon = pokemonTwo;
+    this.pokemonTwo = pokemonTwo;
+    this.roundOrder = this.determineFastest();
   }
 
-  determineFastest() {}
+  determineFastest() {
+    if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
+      return [this.pokemonOne, this.pokemonTwo];
+    } else if (this.pokemonOne.base_speed < this.pokemonTwo.base_speed) {
+      return [this.pokemonTwo, this.pokemonOne];
+    }
+  }
 
-  round() {}
+  round() {
+    if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
+      setTimeout(() => {
+        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+          this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
+          console.log(`${this.pokemonOne.name} attacked`);
+        } else {
+          console.log("missed attack");
+        }
+        this.updatePokemonTwoHealth(this.pokemonTwo);
+      }, 3000);
+
+      setTimeout(() => {
+        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+          this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
+          console.log(`${this.pokemonTwo.name} attacked`);
+        } else {
+          console.log("missed attack");
+        }
+        this.updatePokemonOneHealth(this.pokemonOne);
+      }, 6000);
+    } else {
+      setTimeout(() => {
+        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+          this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
+          console.log(`${this.pokemonTwo.name} attacked`);
+        } else {
+          console.log("missed attack");
+        }
+        this.updatePokemonOneHealth(this.pokemonOne);
+      }, 3000);
+
+      setTimeout(() => {
+        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+          this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
+          console.log(`${this.pokemonOne.name} attacked`);
+        } else {
+          console.log("missed attack");
+        }
+        this.updatePokemonTwoHealth(this.pokemonTwo);
+      }, 6000);
+    }
+
+    if (this.pokemonOne.current_hp > 0 && this.pokemonTwo.current_hp > 0) {
+      setTimeout(() => {
+        this.round();
+      }, 9000);
+    } else {
+      return;
+    }
+  }
+  shuffleMoves = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  };
+
+  updatePokemonOneHealth(pokemon) {
+    const healthInfoOne = document.getElementById("health-info-one");
+    healthInfoOne.textContent = `${pokemon.current_hp} / ${pokemon.base_hp}`;
+
+    const healthBarOne = document.getElementById("bottom-health-bar");
+    let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
+    healthBarOne.style.width = `${newWidth}%`;
+  }
+  updatePokemonTwoHealth(pokemon) {
+    const healthInfoTwo = document.getElementById("health-info-two");
+    healthInfoTwo.textContent = `${pokemon.current_hp} / ${pokemon.base_hp}`;
+
+    const healthBarTwo = document.getElementById("top-health-bar");
+    let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
+    healthBarTwo.style.width = `${newWidth}%`;
+  }
 }
 
 class Pokemon {
@@ -21,7 +103,11 @@ class Pokemon {
     this.moves = handleMove(response.moves);
   }
 
-  attack() {}
+  // attackAttempt(move) {
+  //   if (this.isSuccesfullHit(move)) {
+
+  //   }
+  // }
 
   isSuccesfullHit(move) {
     const rng = Math.floor(Math.random() * 100);
@@ -164,7 +250,7 @@ function handleMove(responseMoves) {
 }
 
 async function getPokemon() {
-  let randomNumber = Math.floor(Math.random() * 151);
+  let randomNumber = Math.floor(Math.random() * 898);
 
   const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`);
   const response = await data.json();
@@ -190,9 +276,11 @@ async function createBattleField() {
 
   await assignMoves(pokemonOne);
   await assignMoves(pokemonTwo);
+
   createBattleContainer(pokemonOne, pokemonTwo);
 
-  pokemonTwo.calculateDamageReceived(pokemonOne.moves[0]);
+  const battle = new Battlefield(pokemonOne, pokemonTwo);
+  battle.round();
 }
 
 async function getMoves() {
@@ -220,9 +308,11 @@ challengeBox.style.display = "flex";
 challengeBox.style.flexDirection = "column";
 challengeBox.style.justifyContent = "space-between";
 challengeBox.style.alignItems = "center";
+challengeBox.style.backgroundColor = "white";
+challengeBox.style.position = "relative";
 
 function createBattleContainer(pokemonOne, pokemonTwo) {
-  createTopHealthBar();
+  createTopHealthBar(pokemonTwo);
 
   const containerBattle = document.createElement("div");
   containerBattle.style.display = "flex";
@@ -237,26 +327,76 @@ function createBattleContainer(pokemonOne, pokemonTwo) {
   const pokemonTwoImg = document.createElement("img");
   pokemonTwoImg.src = pokemonTwo.sprite_front;
   containerBattle.appendChild(pokemonTwoImg);
-  createBottomHealthBar();
+
+  createBottomHealthBar(pokemonOne);
 }
 
-function createTopHealthBar() {
+function createTopHealthBar(pokemon) {
   const healthBar = document.createElement("div");
-  healthBar.style.height = "20px";
+  healthBar.id = "top-health-bar";
+  healthBar.style.height = "30px";
   healthBar.style.width = "100%";
   healthBar.style.background = "red";
   healthBar.style.color = "black";
   challengeBox.appendChild(healthBar);
+  displayPokemonTwoVitals(pokemon);
 }
 
-function createBottomHealthBar() {
+function createBottomHealthBar(pokemon) {
   const healthBar = document.createElement("div");
-  healthBar.style.height = "20px";
+  healthBar.id = "bottom-health-bar";
+  healthBar.style.height = "30px";
   healthBar.style.width = "100%";
   healthBar.style.background = "red";
   healthBar.style.color = "black";
   challengeBox.appendChild(healthBar);
+
+  displayPokemonOneVitals(pokemon);
 }
+
+function displayPokemonOneVitals(pokemon) {
+  const pokemonVitalsContainer = document.createElement("div");
+  pokemonVitalsContainer.style.position = "absolute";
+  pokemonVitalsContainer.style.bottom = "30px";
+  pokemonVitalsContainer.style.left = "30px";
+  pokemonVitalsContainer.style.color = "black";
+
+  const healthBarName = document.createElement("span");
+  healthBarName.textContent = pokemon.name;
+  healthBarName.style.marginRight = "20px";
+  pokemonVitalsContainer.appendChild(healthBarName);
+
+  const healthInfo = document.createElement("span");
+  healthInfo.id = "health-info-one";
+  healthInfo.textContent = `${pokemon.current_hp} / ${pokemon.base_hp}`;
+  pokemonVitalsContainer.appendChild(healthInfo);
+
+  challengeBox.appendChild(pokemonVitalsContainer);
+}
+
+function displayPokemonTwoVitals(pokemon) {
+  const pokemonVitalsContainer = document.createElement("div");
+  pokemonVitalsContainer.style.position = "absolute";
+  pokemonVitalsContainer.style.top = "30px";
+  pokemonVitalsContainer.style.right = "30px";
+  pokemonVitalsContainer.style.color = "black";
+
+  const healthBarName = document.createElement("span");
+  healthBarName.textContent = pokemon.name;
+  healthBarName.style.marginRight = "20px";
+  pokemonVitalsContainer.appendChild(healthBarName);
+
+  const healthInfo = document.createElement("span");
+  healthInfo.id = "health-info-two";
+  healthInfo.textContent = `${pokemon.current_hp} / ${pokemon.base_hp}`;
+  pokemonVitalsContainer.appendChild(healthInfo);
+
+  challengeBox.appendChild(pokemonVitalsContainer);
+}
+
+challengeBox.addEventListener("click", () => {
+  console.log("hi");
+});
 
 ///////////////
 createBattleField();
