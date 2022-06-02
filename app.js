@@ -6,6 +6,10 @@ class Battlefield {
     this.gameOver = false;
   }
 
+  init() {
+    this.round();
+  }
+
   determineFastest() {
     if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
       return [this.pokemonOne, this.pokemonTwo];
@@ -95,6 +99,7 @@ class Battlefield {
 
     if (pokemon.current_hp < 0) {
       this.gameOver = true;
+      challengeBox.classList.remove("fighting");
       healthInfoOne.textContent = "Fainted";
       healthBarOne.style.width = `0%`;
       updatePrimaryCommentary(`${pokemon.name} has fainted`);
@@ -111,6 +116,7 @@ class Battlefield {
 
     if (pokemon.current_hp < 0) {
       this.gameOver = true;
+      challengeBox.classList.remove("fighting");
       healthInfoTwo.textContent = "Fainted";
       healthBarTwo.style.width = `0%`;
       updatePrimaryCommentary(`${pokemon.name} has fainted`);
@@ -137,12 +143,6 @@ class Pokemon {
     this.type = handleTypes(response.types);
     this.moves = handleMove(response.moves);
   }
-
-  // attackAttempt(move) {
-  //   if (this.isSuccesfullHit(move)) {
-
-  //   }
-  // }
 
   isSuccesfullHit(move) {
     const rng = Math.floor(Math.random() * 100);
@@ -452,9 +452,12 @@ function displayPokemonTwoVitals(pokemon) {
 }
 
 challengeBox.addEventListener("click", () => {
-  console.log("hi");
+  if (!challengeBox.classList.contains("fighting")) {
+    challengeBox.classList.add("fighting");
+    challengeBox.innerHTML = "";
+    createBattleField();
+  }
 });
 
 ///////////////
-createBattleField();
 getMoves();
