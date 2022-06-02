@@ -48,6 +48,12 @@ class Pokemon {
       }
     }
 
+    if (dmgMultiplier > 1) {
+      console.log("Its super effective!");
+    } else if (dmgMultiplier < 1) {
+      console.log("Its not very effective...");
+    }
+
     let damageTaken = move.power * dmgMultiplier;
 
     this.current_hp = this.current_hp - damageTaken;
@@ -181,11 +187,11 @@ async function assignMoves(pokemon) {
 async function createBattleField() {
   const pokemonOne = new Pokemon(await getPokemon());
   const pokemonTwo = new Pokemon(await getPokemon());
+
   await assignMoves(pokemonOne);
   await assignMoves(pokemonTwo);
+  createBattleContainer(pokemonOne, pokemonTwo);
 
-  console.log(pokemonTwo);
-  console.log(pokemonOne.moves[0].identifier, pokemonOne.moves[0].type_id);
   pokemonTwo.calculateDamageReceived(pokemonOne.moves[0]);
 }
 
@@ -207,6 +213,51 @@ function randomMoves(array) {
   return moves;
 }
 
-getMoves();
+///////////////////////////////////////////////////////////////////////////////// DOM STUFF
 
+const challengeBox = document.querySelector(".challenge-box");
+challengeBox.style.display = "flex";
+challengeBox.style.flexDirection = "column";
+challengeBox.style.justifyContent = "space-between";
+challengeBox.style.alignItems = "center";
+
+function createBattleContainer(pokemonOne, pokemonTwo) {
+  createTopHealthBar();
+
+  const containerBattle = document.createElement("div");
+  containerBattle.style.display = "flex";
+  containerBattle.style.justifyContent = "center";
+  containerBattle.style.alignItems = "center";
+  challengeBox.appendChild(containerBattle);
+
+  const pokemonOneImg = document.createElement("img");
+  pokemonOneImg.src = pokemonOne.sprite_back;
+  containerBattle.appendChild(pokemonOneImg);
+
+  const pokemonTwoImg = document.createElement("img");
+  pokemonTwoImg.src = pokemonTwo.sprite_front;
+  containerBattle.appendChild(pokemonTwoImg);
+  createBottomHealthBar();
+}
+
+function createTopHealthBar() {
+  const healthBar = document.createElement("div");
+  healthBar.style.height = "20px";
+  healthBar.style.width = "100%";
+  healthBar.style.background = "red";
+  healthBar.style.color = "black";
+  challengeBox.appendChild(healthBar);
+}
+
+function createBottomHealthBar() {
+  const healthBar = document.createElement("div");
+  healthBar.style.height = "20px";
+  healthBar.style.width = "100%";
+  healthBar.style.background = "red";
+  healthBar.style.color = "black";
+  challengeBox.appendChild(healthBar);
+}
+
+///////////////
 createBattleField();
+getMoves();
