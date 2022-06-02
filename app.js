@@ -21,45 +21,53 @@ class Battlefield {
     if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
       setTimeout(() => {
         if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
+          updatePrimaryCommentary(
+            `${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`
+          );
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-        } else {
-          console.log("missed attack");
+        } else if (!this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonOne.name} missed attack`);
         }
-        this.updatePokemonTwoHealth(this.pokemonTwo);
+        this.gameOver ? null : this.updatePokemonTwoHealth(this.pokemonTwo);
       }, 2000);
 
       setTimeout(() => {
         if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
+          updatePrimaryCommentary(
+            `${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`
+          );
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-        } else {
-          console.log("missed attack");
+        } else if (!this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonTwo.name} missed attack`);
         }
-        this.updatePokemonOneHealth(this.pokemonOne);
+        this.gameOver ? null : this.updatePokemonOneHealth(this.pokemonOne);
       }, 4000);
     } else {
       setTimeout(() => {
         if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
+          updatePrimaryCommentary(
+            `${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`
+          );
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-        } else {
-          console.log("missed attack");
+        } else if (!this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonTwo.name} missed attack`);
         }
-        this.updatePokemonOneHealth(this.pokemonOne);
+        this.gameOver ? null : this.updatePokemonOneHealth(this.pokemonOne);
       }, 2000);
 
       setTimeout(() => {
         if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
+          updatePrimaryCommentary(
+            `${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`
+          );
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-        } else {
-          console.log("missed attack");
+        } else if (!this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonOne.name} missed attack`);
         }
-        this.updatePokemonTwoHealth(this.pokemonTwo);
+        this.gameOver ? null : this.updatePokemonTwoHealth(this.pokemonTwo);
       }, 4000);
     }
-    console.log(this.gameOver);
+
     if (!this.gameOver) {
       setTimeout(() => {
         this.round();
@@ -87,8 +95,10 @@ class Battlefield {
 
     if (pokemon.current_hp < 0) {
       this.gameOver = true;
-      healthInfoOne.textContent = "Dead";
+      healthInfoOne.textContent = "Fainted";
       healthBarOne.style.width = `0%`;
+      updatePrimaryCommentary(`${pokemon.name} has fainted`);
+      this.checkWinner(this.pokemonOne, this.pokemonTwo);
     }
   }
   updatePokemonTwoHealth(pokemon) {
@@ -101,8 +111,17 @@ class Battlefield {
 
     if (pokemon.current_hp < 0) {
       this.gameOver = true;
-      healthInfoTwo.textContent = "Dead";
+      healthInfoTwo.textContent = "Fainted";
       healthBarTwo.style.width = `0%`;
+      updatePrimaryCommentary(`${pokemon.name} has fainted`);
+      this.checkWinner(this.pokemonOne, this.pokemonTwo);
+    }
+  }
+  checkWinner(pokemonOne, pokemonTwo) {
+    if (pokemonOne.current_hp > 0) {
+      updateSecondaryCommentary(`${pokemonOne.name} wins!`);
+    } else if (pokemonTwo.current_hp > 0) {
+      updateSecondaryCommentary(`${pokemonTwo.name} wins!`);
     }
   }
 }
@@ -112,8 +131,8 @@ class Pokemon {
     this.name = response.name;
     this.sprite_front = response.sprites.front_default;
     this.sprite_back = response.sprites.back_default;
-    this.current_hp = response.stats[0].base_stat * 10;
-    this.base_hp = response.stats[0].base_stat * 10;
+    this.current_hp = response.stats[0].base_stat * 7;
+    this.base_hp = response.stats[0].base_stat * 7;
     this.base_speed = response.stats[5].base_stat;
     this.type = handleTypes(response.types);
     this.moves = handleMove(response.moves);
@@ -150,15 +169,21 @@ class Pokemon {
       }
     }
 
-    if (dmgMultiplier > 1) {
-      console.log("Its super effective!");
-    } else if (dmgMultiplier < 1) {
-      console.log("Its not very effective...");
-    }
-
     let damageTaken = move.power * dmgMultiplier;
 
     this.current_hp = this.current_hp - damageTaken;
+
+    if (dmgMultiplier > 1) {
+      updateSecondaryCommentary(`Its super effective! It does ${damageTaken} dmg to ${this.name}`);
+    } else if (dmgMultiplier < 1) {
+      updateSecondaryCommentary(
+        `Its not very effective... It does ${damageTaken} dmg to ${this.name}`
+      );
+    } else {
+      updateSecondaryCommentary(
+        `Its of normal effectiveness. It does ${damageTaken} dmg to ${this.name}`
+      );
+    }
   }
 }
 
@@ -318,6 +343,7 @@ function randomMoves(array) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////// DOM STUFF
+const challengeContainer = document.querySelector(".js-challenge");
 
 const challengeBox = document.querySelector(".challenge-box");
 challengeBox.style.display = "flex";
@@ -326,6 +352,19 @@ challengeBox.style.justifyContent = "space-between";
 challengeBox.style.alignItems = "center";
 challengeBox.style.backgroundColor = "white";
 challengeBox.style.position = "relative";
+
+const primaryCommentary = document.createElement("div");
+challengeContainer.appendChild(primaryCommentary);
+const secondaryCommentary = document.createElement("div");
+challengeContainer.appendChild(secondaryCommentary);
+
+function updatePrimaryCommentary(string) {
+  primaryCommentary.textContent = string;
+}
+
+function updateSecondaryCommentary(string) {
+  secondaryCommentary.textContent = string;
+}
 
 function createBattleContainer(pokemonOne, pokemonTwo) {
   createTopHealthBar(pokemonTwo);
