@@ -3,6 +3,7 @@ class Battlefield {
     this.pokemonOne = pokemonOne;
     this.pokemonTwo = pokemonTwo;
     this.roundOrder = this.determineFastest();
+    this.gameOver = false;
   }
 
   determineFastest() {
@@ -19,7 +20,7 @@ class Battlefield {
 
     if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
       setTimeout(() => {
-        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
           console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
         } else {
@@ -29,7 +30,7 @@ class Battlefield {
       }, 2000);
 
       setTimeout(() => {
-        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
           console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
         } else {
@@ -39,7 +40,7 @@ class Battlefield {
       }, 4000);
     } else {
       setTimeout(() => {
-        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0])) {
+        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
           console.log(`${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`);
           this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
         } else {
@@ -49,7 +50,7 @@ class Battlefield {
       }, 2000);
 
       setTimeout(() => {
-        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0])) {
+        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
           console.log(`${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`);
           this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
         } else {
@@ -58,11 +59,11 @@ class Battlefield {
         this.updatePokemonTwoHealth(this.pokemonTwo);
       }, 4000);
     }
-
-    if (this.pokemonOne.current_hp > 0 && this.pokemonTwo.current_hp > 0) {
+    console.log(this.gameOver);
+    if (!this.gameOver) {
       setTimeout(() => {
         this.round();
-      }, 6000);
+      }, 5000);
     } else {
       return;
     }
@@ -83,6 +84,12 @@ class Battlefield {
     const healthBarOne = document.getElementById("bottom-health-bar");
     let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
     healthBarOne.style.width = `${newWidth}%`;
+
+    if (pokemon.current_hp < 0) {
+      this.gameOver = true;
+      healthInfoOne.textContent = "Dead";
+      healthBarOne.style.width = `0%`;
+    }
   }
   updatePokemonTwoHealth(pokemon) {
     const healthInfoTwo = document.getElementById("health-info-two");
@@ -91,6 +98,12 @@ class Battlefield {
     const healthBarTwo = document.getElementById("top-health-bar");
     let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
     healthBarTwo.style.width = `${newWidth}%`;
+
+    if (pokemon.current_hp < 0) {
+      this.gameOver = true;
+      healthInfoTwo.textContent = "Dead";
+      healthBarTwo.style.width = `0%`;
+    }
   }
 }
 
