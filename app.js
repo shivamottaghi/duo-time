@@ -14,7 +14,8 @@ class Pokemon {
     this.name = response.name;
     this.sprite_front = response.sprites.front_default;
     this.sprite_back = response.sprites.back_default;
-    this.base_hp = response.stats[0].base_stat;
+    this.current_hp = response.stats[0].base_stat * 10;
+    this.base_hp = response.stats[0].base_stat * 10;
     this.base_speed = response.stats[5].base_stat;
     this.type = handleTypes(response.types);
     this.moves = handleMove(response.moves);
@@ -33,60 +34,24 @@ class Pokemon {
     }
   }
 
-  // checkMoveEfficiency(attackerPokemonMoveType, defenderPokemonType) {
-  //   let multiplier;
+  calculateDamageReceived(move) {
+    let dmgMultiplier = 1;
 
-  //   switch (defenderPokemonType) {
-  //     case "normal":
-  //       switch (attackerPokemonMoveType) {
-  //         case 1:
-  //           multiplier = 1;
-  //           break;
-  //         case 2:
-  //           multiplier = 2;
-  //           break;
-  //         case 3:
-  //           multiplier = 1;
-  //           break;
-  //         case 4:
-  //           multiplier = 1;
-  //           break;
-  //         case 5:
-  //           multiplier = 1;
-  //           break;
-  //         case 6:
-  //           multiplier = 1;
-  //           break;
-  //         case 7:
-  //           multiplier = 1;
-  //           break;
-  //         case 8:
-  //           multiplier = 1;
-  //           break;
-  //         case 9:
-  //           multiplier = 1;
-  //           break;
-  //         case 10:
-  //           multiplier = 1;
-  //           break;
-  //         case 11:
-  //           multiplier = 1;
-  //           break;
-  //         case 12:
-  //           multiplier = 1;
-  //           break;
-  //         case 13:
-  //           multiplier = 1;
-  //           break;
-  //         case 14:
-  //           multiplier = 1;
-  //           break;
-  //         case 15:
-  //           multiplier = 1;
-  //           break;
-  //       }
-  //   }
-  // }
+    for (let i = 0; i < this.type.weakTo.length; i++) {
+      if (move.type_id === this.type.weakTo[i]) {
+        dmgMultiplier = dmgMultiplier * 2;
+      }
+    }
+    for (let i = 0; i < this.type.resistantTo.length; i++) {
+      if (move.type_id === this.type.resistantTo[i]) {
+        dmgMultiplier = dmgMultiplier * 0.5;
+      }
+    }
+
+    let damageTaken = move.power * dmgMultiplier;
+
+    this.current_hp = this.current_hp - damageTaken;
+  }
 }
 
 function handleTypes(responseTypes) {
@@ -215,11 +180,13 @@ async function assignMoves(pokemon) {
 
 async function createBattleField() {
   const pokemonOne = new Pokemon(await getPokemon());
-  // const pokemonTwo = new Pokemon(await getPokemon());
+  const pokemonTwo = new Pokemon(await getPokemon());
   await assignMoves(pokemonOne);
-  // await assignMoves(pokemonTwo);
+  await assignMoves(pokemonTwo);
 
-  console.log(pokemonOne);
+  console.log(pokemonTwo);
+  console.log(pokemonOne.moves[0].identifier, pokemonOne.moves[0].type_id);
+  pokemonTwo.calculateDamageReceived(pokemonOne.moves[0]);
 }
 
 async function getMoves() {
