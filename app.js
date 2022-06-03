@@ -1,3 +1,5 @@
+const pokemonPool = 151;
+
 class Battlefield {
   constructor(pokemonOne, pokemonTwo) {
     this.pokemonOne = pokemonOne;
@@ -19,63 +21,53 @@ class Battlefield {
   }
 
   round() {
+    console.log(this.pokemonOne.moves);
+    console.log(this.pokemonTwo.moves);
+
     this.shuffleMoves(this.pokemonOne.moves);
     this.shuffleMoves(this.pokemonTwo.moves);
 
+    let pokemoOneMove = this.pokemonOne.moves[0];
+    let pokemoTwoMove = this.pokemonTwo.moves[0];
+
     if (this.pokemonOne.base_speed > this.pokemonTwo.base_speed) {
       setTimeout(() => {
-        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(
-            `${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`
-          );
-          this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-        } else if (!this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(`${this.pokemonOne.name} missed attack`);
+        if (!this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonOne.name} used ${pokemoOneMove.identifier}!`);
+          this.pokemonTwo.calculateDamageReceived(pokemoOneMove);
         }
         this.gameOver ? null : this.updatePokemonTwoHealth(this.pokemonTwo);
-      }, 2000);
+      }, 3000);
 
       setTimeout(() => {
-        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(
-            `${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`
-          );
-          this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-        } else if (!this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(`${this.pokemonTwo.name} missed attack`);
+        if (!this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonTwo.name} used ${pokemoTwoMove.identifier}!`);
+          this.pokemonOne.calculateDamageReceived(pokemoTwoMove);
         }
         this.gameOver ? null : this.updatePokemonOneHealth(this.pokemonOne);
-      }, 4000);
+      }, 6000);
     } else {
       setTimeout(() => {
-        if (this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(
-            `${this.pokemonTwo.name} used ${this.pokemonTwo.moves[0].identifier}!`
-          );
-          this.pokemonOne.calculateDamageReceived(this.pokemonTwo.moves[0]);
-        } else if (!this.pokemonTwo.isSuccesfullHit(this.pokemonTwo.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(`${this.pokemonTwo.name} missed attack`);
+        if (!this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonTwo.name} used ${pokemoTwoMove.identifier}!`);
+          this.pokemonOne.calculateDamageReceived(pokemoTwoMove);
         }
         this.gameOver ? null : this.updatePokemonOneHealth(this.pokemonOne);
-      }, 2000);
+      }, 3000);
 
       setTimeout(() => {
-        if (this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(
-            `${this.pokemonOne.name} used ${this.pokemonOne.moves[0].identifier}!`
-          );
-          this.pokemonTwo.calculateDamageReceived(this.pokemonOne.moves[0]);
-        } else if (!this.pokemonOne.isSuccesfullHit(this.pokemonOne.moves[0]) && !this.gameOver) {
-          updatePrimaryCommentary(`${this.pokemonOne.name} missed attack`);
+        if (!this.gameOver) {
+          updatePrimaryCommentary(`${this.pokemonOne.name} used ${pokemoOneMove.identifier}!`);
+          this.pokemonTwo.calculateDamageReceived(pokemoOneMove);
         }
         this.gameOver ? null : this.updatePokemonTwoHealth(this.pokemonTwo);
-      }, 4000);
+      }, 6000);
     }
 
     if (!this.gameOver) {
       setTimeout(() => {
         this.round();
-      }, 5000);
+      }, 7000);
     } else {
       return;
     }
@@ -97,9 +89,12 @@ class Battlefield {
     let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
     healthBarOne.style.width = `${newWidth}%`;
 
-    if (pokemon.current_hp < 0) {
+    if (pokemon.current_hp <= 0) {
       this.gameOver = true;
-      challengeBox.classList.remove("fighting");
+      setTimeout(() => {
+        challengeBox.classList.remove("fighting");
+      }, 6000);
+
       healthInfoOne.textContent = "Fainted";
       healthBarOne.style.width = `0%`;
       updatePrimaryCommentary(`${pokemon.name} has fainted`);
@@ -114,9 +109,11 @@ class Battlefield {
     let newWidth = (pokemon.current_hp / pokemon.base_hp) * 100;
     healthBarTwo.style.width = `${newWidth}%`;
 
-    if (pokemon.current_hp < 0) {
+    if (pokemon.current_hp <= 0) {
       this.gameOver = true;
-      challengeBox.classList.remove("fighting");
+      setTimeout(() => {
+        challengeBox.classList.remove("fighting");
+      }, 6000);
       healthInfoTwo.textContent = "Fainted";
       healthBarTwo.style.width = `0%`;
       updatePrimaryCommentary(`${pokemon.name} has fainted`);
@@ -156,33 +153,39 @@ class Pokemon {
   }
 
   calculateDamageReceived(move) {
-    let dmgMultiplier = 1;
+    if (this.isSuccesfullHit(move)) {
+      let dmgMultiplier = 1;
 
-    for (let i = 0; i < this.type.weakTo.length; i++) {
-      if (move.type_id === this.type.weakTo[i]) {
-        dmgMultiplier = dmgMultiplier * 2;
+      for (let i = 0; i < this.type.weakTo.length; i++) {
+        if (move.type_id === this.type.weakTo[i]) {
+          dmgMultiplier = dmgMultiplier * 2;
+        }
       }
-    }
-    for (let i = 0; i < this.type.resistantTo.length; i++) {
-      if (move.type_id === this.type.resistantTo[i]) {
-        dmgMultiplier = dmgMultiplier * 0.5;
+      for (let i = 0; i < this.type.resistantTo.length; i++) {
+        if (move.type_id === this.type.resistantTo[i]) {
+          dmgMultiplier = dmgMultiplier * 0.5;
+        }
       }
-    }
 
-    let damageTaken = move.power * dmgMultiplier;
+      let damageTaken = move.power * dmgMultiplier;
 
-    this.current_hp = this.current_hp - damageTaken;
+      this.current_hp = this.current_hp - damageTaken;
 
-    if (dmgMultiplier > 1) {
-      updateSecondaryCommentary(`Its super effective! It does ${damageTaken} dmg to ${this.name}`);
-    } else if (dmgMultiplier < 1) {
-      updateSecondaryCommentary(
-        `Its not very effective... It does ${damageTaken} dmg to ${this.name}`
-      );
+      if (dmgMultiplier > 1) {
+        updateSecondaryCommentary(
+          `Its super effective! It does ${damageTaken} dmg to ${this.name}`
+        );
+      } else if (dmgMultiplier < 1) {
+        updateSecondaryCommentary(
+          `Its not very effective... It does ${damageTaken} dmg to ${this.name}`
+        );
+      } else {
+        updateSecondaryCommentary(
+          `Its of normal effectiveness. It does ${damageTaken} dmg to ${this.name}`
+        );
+      }
     } else {
-      updateSecondaryCommentary(
-        `Its of normal effectiveness. It does ${damageTaken} dmg to ${this.name}`
-      );
+      updateSecondaryCommentary(`Oh no! It misses!`);
     }
   }
 }
@@ -291,7 +294,7 @@ function handleMove(responseMoves) {
 }
 
 async function getPokemon() {
-  let randomNumber = Math.floor(Math.random() * 898);
+  let randomNumber = Math.floor(Math.random() * pokemonPool);
 
   const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${randomNumber}`);
   const response = await data.json();
@@ -308,7 +311,9 @@ async function assignMoves(pokemon) {
 
   let commonMoves = possibleMoves.filter((x) => pokemonMoves.includes(x.identifier));
 
-  pokemon.moves = randomMoves(commonMoves);
+  pokemon.moves = commonMoves;
+
+  // pokemon.moves = randomMoves(commonMoves);
 }
 
 async function createBattleField() {
@@ -352,6 +357,8 @@ challengeBox.style.justifyContent = "space-between";
 challengeBox.style.alignItems = "center";
 challengeBox.style.backgroundColor = "white";
 challengeBox.style.position = "relative";
+challengeBox.style.color = "black";
+challengeBox.textContent = "Click me to start a new match!";
 
 const primaryCommentary = document.createElement("div");
 challengeContainer.appendChild(primaryCommentary);
@@ -461,3 +468,59 @@ challengeBox.addEventListener("click", () => {
 
 ///////////////
 getMoves();
+
+////////////////  MAIN CHALLENGE ////////////
+
+const colorPic = document.querySelector(".colorPic").firstElementChild;
+colorPic.src = "./images/color-green.png";
+colorPic.alt = "green-color";
+
+colorPic.addEventListener("mouseenter", () => {
+  colorPic.src = "./images/color.PNG";
+});
+
+colorPic.addEventListener("mouseleave", () => {
+  colorPic.src = "./images/color-green.png";
+});
+
+const animalPic = document.querySelector(".animalPic").firstElementChild;
+animalPic.src = "./images/owl.jpg";
+animalPic.alt = "owl-pic";
+animalPic.style.width = "250px";
+animalPic.style.objectFit = "cover";
+
+animalPic.addEventListener("mouseenter", () => {
+  animalPic.src = "./images/wolf.jpg";
+});
+
+animalPic.addEventListener("mouseleave", () => {
+  animalPic.src = "./images/owl.jpg";
+});
+
+const sportPic = document.querySelector(".sportPic").firstElementChild;
+sportPic.src = "./images/snowboard.webp";
+sportPic.alt = "snowboard";
+sportPic.style.width = "250px";
+sportPic.style.objectFit = "cover";
+
+sportPic.addEventListener("mouseenter", () => {
+  sportPic.src = "./images/tennis.jpg";
+});
+
+sportPic.addEventListener("mouseleave", () => {
+  sportPic.src = "./images/snowboard.webp";
+});
+
+const celebPic = document.querySelector(".celebPic").firstElementChild;
+celebPic.src = "./images/denzel.webp";
+celebPic.alt = "denzel-washington";
+celebPic.style.width = "250px";
+celebPic.style.objectFit = "cover";
+
+celebPic.addEventListener("mouseenter", () => {
+  celebPic.src = "./images/Johnny.jpg";
+});
+
+celebPic.addEventListener("mouseleave", () => {
+  celebPic.src = "./images/denzel.webp";
+});
