@@ -474,6 +474,7 @@ getMoves();
 const colorPic = document.querySelector(".colorPic").firstElementChild;
 colorPic.src = "./images/color-green.png";
 colorPic.alt = "green-color";
+showCorrectInfo("color", "Actually my favorite color is green!");
 
 colorPic.addEventListener("mouseenter", () => {
   colorPic.src = "./images/color.PNG";
@@ -488,6 +489,7 @@ animalPic.src = "./images/owl.jpg";
 animalPic.alt = "owl-pic";
 animalPic.style.width = "250px";
 animalPic.style.objectFit = "cover";
+showCorrectInfo("animal", "I really feel like an owl sometimes");
 
 animalPic.addEventListener("mouseenter", () => {
   animalPic.src = "./images/wolf.jpg";
@@ -502,6 +504,7 @@ sportPic.src = "./images/snowboard.webp";
 sportPic.alt = "snowboard";
 sportPic.style.width = "250px";
 sportPic.style.objectFit = "cover";
+showCorrectInfo("sport", "I miss snowboarding so much!");
 
 sportPic.addEventListener("mouseenter", () => {
   sportPic.src = "./images/tennis.jpg";
@@ -516,6 +519,7 @@ celebPic.src = "./images/denzel.webp";
 celebPic.alt = "denzel-washington";
 celebPic.style.width = "250px";
 celebPic.style.objectFit = "cover";
+showCorrectInfo("celeb", "A Denzel movie is a must-watch movie for me!");
 
 celebPic.addEventListener("mouseenter", () => {
   celebPic.src = "./images/Johnny.jpg";
@@ -524,3 +528,18 @@ celebPic.addEventListener("mouseenter", () => {
 celebPic.addEventListener("mouseleave", () => {
   celebPic.src = "./images/denzel.webp";
 });
+
+showCorrectInfo("ficChar", "You actually got this right!, The Joker has to be on my top 3");
+showCorrectInfo("movie", "Correct! Interstellar is easy in my top 5 AT LEAST");
+
+function showCorrectInfo(parentClass, firstpstring, secondpstring) {
+  const parent = document.querySelector(`.${parentClass}`);
+  const children = parent.children;
+
+  if (children.length > 2) {
+    children[1].textContent = firstpstring;
+    children[2].textContent = secondpstring;
+  } else {
+    children[1].textContent = firstpstring;
+  }
+}
