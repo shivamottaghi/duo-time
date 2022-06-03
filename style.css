@@ -31,10 +31,10 @@ body{
     background-color: #000814;
     border: 2px solid #FFC300;
 }
-a{
+#lucasPage{
     color: #FFD60A;
     text-decoration: none;
 }
-a:hover{
+#lucasPage:hover{
     color: #fff392;
 }
