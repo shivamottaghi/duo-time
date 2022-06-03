@@ -97,8 +97,10 @@ class Battlefield {
 
       healthInfoOne.textContent = "Fainted";
       healthBarOne.style.width = `0%`;
-      updatePrimaryCommentary(`${pokemon.name} has fainted`);
-      this.checkWinner(this.pokemonOne, this.pokemonTwo);
+      setTimeout(() => {
+        updatePrimaryCommentary(`${pokemon.name} has fainted`);
+        this.checkWinner(this.pokemonOne, this.pokemonTwo);
+      }, 2000);
     }
   }
   updatePokemonTwoHealth(pokemon) {
@@ -116,8 +118,10 @@ class Battlefield {
       }, 6000);
       healthInfoTwo.textContent = "Fainted";
       healthBarTwo.style.width = `0%`;
-      updatePrimaryCommentary(`${pokemon.name} has fainted`);
-      this.checkWinner(this.pokemonOne, this.pokemonTwo);
+      setTimeout(() => {
+        updatePrimaryCommentary(`${pokemon.name} has fainted`);
+        this.checkWinner(this.pokemonOne, this.pokemonTwo);
+      }, 2000);
     }
   }
   checkWinner(pokemonOne, pokemonTwo) {
