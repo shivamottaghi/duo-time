@@ -31,3 +31,10 @@ body{
     background-color: #000814;
     border: 2px solid #FFC300;
 }
+a{
+    color: #FFD60A;
+    text-decoration: none;
+}
+a:hover{
+    color: #fff392;
+}
